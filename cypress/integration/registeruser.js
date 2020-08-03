@@ -1,0 +1,298 @@
+import {EMAIL} from '../fixtures/constants';
+import {NAME} from '../fixtures/constants';
+import { authPage } from '../page_object/login.page';
+import { randomEmail } from '../utils';
+import { createGalleryPage } from '../page_object/createGallery.page';
+
+
+const faker = require('faker');
+let email = faker.internet.email();
+let password = faker.internet.password();
+let url1 = "https://gallery-app.vivifyideas.com/";
+let img1 = "https://image.freepik.com/free-photo/black-white-angelfish-swimming-aqua-scape-planted-tropical-fish-tank_47840-73.jpg";
+let img2 = "https://thewallpaper.co//wp-content/uploads/2019/09//reptiles-lizard-cute-pc-tropical-pet-images-animals-samsung-green-color-jpg.jpg";
+
+describe('Register module', () => {
+
+  beforeEach (() => {
+    cy.visit('/register')
+  })
+  before(() => {
+    cy.server()
+        cy.route('https://gallery-api.vivifyideas.com/api/galleries?page=1&term=').as('galleries')
+  })
+
+  // it('GA-19 : Login page layout', () => {
+  //   cy.visit('/login')
+  //   cy.wait(1000)
+  //   cy.get('.nav-link').contains('Register')
+  //   cy.wait(1000)
+  //   cy.get('[type=email]').should('be.visible')
+  //   cy.get('[type=password]').should('be.visible')
+  //   cy.get('[type=submit]').contains('Submit').should('be.visible')
+  // })
+  
+  it('GA-9 : Register page test', () => {
+    //cy.visit('/')
+    cy.get('.nav-link').contains('Login').click()
+    cy.get('.nav-link').contains('Register').click()
+    cy.wait(1000)
+    cy.url().should('include', '/register')
+    cy.get('#first-name').should('be.visible')
+    cy.get('#last-name').should('be.visible')
+    // cy.get('#email').should('be.visible')
+    // cy.get('#password').should('be.visible')
+    authPage.email.should('be.visible')
+    authPage.password.should('be.visible')
+    cy.get('#password-confirmation').should('be.visible')
+    cy.get('.form-check-input').should('be.visible')
+    cy.get('.btn').should('be.visible').contains('Submit')
+    //cy.get('#email').type('ivanfly1986@gmail.com')
+    //cy.get('form > :nth-child(2)').type('Gucevogucevo1')
+    //cy.get('[type=submit]').click()
+    //cy.wait(1000)
+    //cy.get('.nav-link').contains('Logout').should('be.visible')    
+  })
+
+  it('GA-14 : Register page positive test', () => {
+    //cy.visit('/')
+    //cy.get('.nav-link').contains('Login').click()
+    //cy.get('.nav-link').contains('Register').click()
+    //cy.wait(1000)
+    cy.url().should('include', '/register')
+    cy.get('#first-name').type('Te')
+    cy.get('#last-name').type('St')
+    // cy.get('#email').type(email)
+    // cy.get('#password').type(password)
+    authPage.email.type(email)
+    authPage.password.type(password)
+    cy.get('#password-confirmation').type(password)
+    cy.get('.form-check-input').click()
+    cy.get('.btn').should('be.visible').contains('Submit').click()
+    //cy.wait(2000)
+    cy.server()
+        cy.route(Cypress.env('apiUrl') + '/galleries?page=1&term=').as('galleries')
+        cy.wait('@galleries')
+    cy.url().should('eq', url1)
+  })
+
+  // it('GA-14 : Register page positive test', () => {
+  //   cy.visit('/')
+  //   cy.get('.nav-link').contains('Login').click()
+  //   cy.get('.nav-link').contains('Register').click()
+  //   cy.wait(1000)
+  //   cy.url().should('include', '/register')
+  //   cy.get('#first-name').type('Te')
+  //   cy.get('#last-name').type('St')
+  //   cy.get('#email').type(email)
+  //   cy.get('#password').type(password)
+  //   cy.get('#password-confirmation').type(password)
+  //   cy.get('.form-check-input').click()
+  //   cy.get('.btn').should('be.visible').contains('Submit').click()
+  //   cy.wait(2000)
+  //   cy.url().should('eq', url1)
+    //cy.get('.nav-link').do.not.contains('Register')
+    //cy.get('.nav-link').not('Logout')
+  //  })
+
+  it('GA-40 : Register page test - First name input field: required  ', () => {
+    cy.visit('/register')
+    cy.get('#first-name').type(NAME.EXISTING)
+    cy.get('#last-name').type(NAME.LAST)
+    // cy.get('#email').type(emailTwo)
+    // cy.get('#password').type(password)
+    // Dodavanje funkcije randomEmail iz "utils/index.js". Zamena faker-a.
+    authPage.email.type(randomEmail())
+    authPage.password.type(password)
+    cy.get('#password-confirmation').type(password)
+    cy.get('.form-check-input').click()
+    cy.get('[type=submit]').contains('Submit').click()
+    // cy.wait(1000)
+    cy.server()
+        cy.route(Cypress.env('apiUrl') + '/galleries?page=1&term=').as('galleries')
+        cy.wait('@galleries')
+    // .should('not.be.visible') - Provera da li necega nema na stranici
+    cy.get(".nav-link").contains("Register").should('not.be.visible')
+  })
+
+  it('GA-46 : Register page test - Last name input field: required ', () => {
+    //cy.visit('/register')
+    cy.get('#first-name').type(NAME.EXISTING)
+    cy.get('#last-name')
+    // cy.get('#email').type(emailTwo)
+    // cy.get('#password').type(password)
+    authPage.email.type(randomEmail())
+    authPage.password.type(password)
+    cy.get('#password-confirmation').type(password)
+    cy.get('.form-check-input').click()
+    cy.get('[type=submit]').contains('Submit').click()
+    cy.wait(1000)
+    cy.get(".nav-link").contains("Register").should('be.visible')
+  })
+
+  it('GA-54 : Register page test - Email input field: required ', () => {
+    // cy.visit('/register')
+    cy.get('#first-name').type(NAME.EXISTING)
+    cy.get('#last-name').type(NAME.LAST)
+    cy.get('#email')
+    cy.get('#password').type(password)
+    authPage.email
+    authPage.password.type(password)
+    cy.get('#password-confirmation').type(password)
+    cy.get('.form-check-input').click()
+    cy.get('[type=submit]').contains('Submit').click()
+    cy.wait(1000)
+    cy.get(".nav-link").contains("Register").should('be.visible')
+  })
+
+  it('GGA-55 : Register page test - Email field format invalid ', () => {
+    //cy.visit('/register')
+    cy.get('#first-name').type(NAME.EXISTING)
+    cy.get('#last-name').type(NAME.LAST)
+    // cy.get('#email').type('invalid@email')
+    // cy.get('#password').type(password)
+    authPage.email.type('invalid@email')
+    authPage.password.type(password)
+    cy.get('#password-confirmation').type(password)
+    cy.get('.form-check-input').click()
+    cy.get('[type=submit]').contains('Submit').click()
+    cy.wait(1000)
+    cy.get('.alert').contains('The email must be a valid email address').should('be.visible')
+    cy.get(".nav-link").contains("Register").should('be.visible')
+  })
+
+  it('GA-59 : Register page test - Password input field empty ', () => {
+    //cy.visit('/register')
+    cy.get('#first-name').type(NAME.EXISTING)
+    cy.get('#last-name').type(NAME.LAST)
+    // cy.get('#email').type(emailTwo)
+    // cy.get('#password')
+    authPage.email.type(randomEmail())
+    authPage.password
+    cy.get('#password-confirmation').type(password)
+    cy.get('.form-check-input').click()
+    cy.get('[type=submit]').contains('Submit').click()
+    cy.wait(1000)
+    cy.get(".nav-link").contains("Register").should('be.visible')
+  })
+
+  it('GA-60 : Register page test - Password Confirm input field empty', () => {
+    //cy.visit('/register')
+    cy.get('#first-name').type(NAME.EXISTING)
+    cy.get('#last-name').type(NAME.LAST)
+    // cy.get('#email').type(emailTwo)
+    // cy.get('#password').type(password)
+    authPage.email.type(randomEmail())
+    authPage.password.type(password)
+    cy.get('#password-confirmation')
+    cy.get('.form-check-input').click()
+    cy.get('[type=submit]').contains('Submit').click()
+    cy.wait(1000)
+    cy.get(".nav-link").contains("Register").should('be.visible')
+  })
+
+  it('GA-81 : Confirmation password doesnt match', () => {
+    //cy.visit('/register')
+    cy.get('#first-name').type(NAME.EXISTING)
+    cy.get('#last-name').type(NAME.LAST)
+    // cy.get('#email').type(emailTwo)
+    // cy.get('#password').type(password)
+    authPage.email.type(randomEmail())
+    authPage.password.type(password)
+    cy.get('#password-confirmation').type('testtest3')
+    cy.get('.form-check-input').click()
+    cy.get('[type=submit]').contains('Submit').click()
+    cy.wait(1000)
+    cy.get('.alert').contains('The password confirmation does not match').should('be.visible')
+                                                                         .should('contains.text', 'The password confirmation does not match.')
+    cy.get(".nav-link").contains("Register").should('be.visible')
+  })
+
+  it('GA-82 : Password form - invalid',  () => {
+    //cy.visit('/register')
+    cy.get('#first-name').type(NAME.EXISTING)
+    cy.get('#last-name').type(NAME.LAST)
+    // cy.get('#email').type(emailTwo)
+    // cy.get('#password').type(password)
+    authPage.email.type(randomEmail())
+    authPage.password.type('123')
+    cy.get('#password-confirmation').type('123')
+    cy.get('.form-check-input').click()
+    cy.get('[type=submit]').contains('Submit').click()
+    cy.wait(1000)
+    cy.get('.alert').contains('The password must be at least 8 characters.').should('be.visible')
+                                                                            .should('contains.text', 'The password must be at least 8 characters.')
+    cy.get(".nav-link").contains("Register").should('be.visible')
+  })
+
+  it('GA-83 : Password form - password has less then 8 characters  ', () => {
+    //cy.visit('/register')
+    cy.get('#first-name').type(NAME.EXISTING)
+    cy.get('#last-name').type(NAME.LAST)
+    // cy.get('#email').type(emailTwo)
+    // cy.get('#password').type(password)
+    authPage.email.type(randomEmail())
+    authPage.password.type('pass2')
+    cy.get('#password-confirmation').type('pass2')
+    cy.get('.form-check-input').click()
+    cy.get('[type=submit]').contains('Submit').click()
+    cy.wait(1000)
+    cy.get('.alert').contains('The password must be at least 8 characters').should('be.visible')
+                                                                           .should('contains.text', 'The password must be at least 8 characters.')
+    cy.get(".nav-link").contains("Register").should('be.visible')
+  })
+
+  it('GA-84 : User can not be registered twice', () => { 
+    //cy.visit('/register')
+    cy.get('#first-name').type(NAME.EXISTING)
+    cy.get('#last-name').type(NAME.LAST)
+    // cy.get('#email').type(emailTwo)
+    // cy.get('#password').type(password)
+    authPage.email.type(EMAIL.EXISTING)
+    authPage.password.type(EMAIL.PASSWORD)
+    cy.get('#password-confirmation').type(EMAIL.PASSWORD)
+    cy.get('.form-check-input').click()
+    cy.get('[type=submit]').contains('Submit').click()
+    cy.wait(1000)
+    cy.get('.alert').contains('The email has already been taken.').should('be.visible')
+                                                                  .should('contains.text', 'The email has already been taken.')
+    cy.get(".nav-link").contains("Register").should('be.visible')
+} )
+
+  // it('GA-22 : Login - invalid data - username', () => {
+  //     cy.visit('/')
+  //     cy.get('.nav-link').contains('Login').click()
+  //     cy.log(email)
+  //     cy.get('#email').type(email)
+  //     cy.get('#password').type('Gucevogucevo1')
+  //     cy.get('[type=submit]').click()
+  // })
+
+  // it('GA-25 : Login - invalid data - password', () => {
+  //     cy.visit('/')
+  //     cy.get('.nav-link').contains('Login').click()
+  //     cy.get('#email').type('ivanfly1986@gmail.com')
+  //     cy.get('#password').type(password)
+  //     cy.get('[type=submit]').click()
+  // })
+
+  // it('GA-26 : Login - invalid data - username and password', () => {
+  //   cy.visit('/')
+  //   cy.get('.nav-link').contains('Login').click()
+  //   cy.log(email)
+  //   cy.get('#email').type(email)
+  //   cy.get('#password').type(password)
+  //   cy.get('[type=submit]').click()
+  // })
+
+  // it('GA-32 : User is logged', () => {
+  //   cy.visit('/')
+  //   cy.get('.nav-link').contains('Login').click()
+  //   cy.get('#email').type('ivanfly1986@gmail.com')
+  //   cy.get('form > :nth-child(2)').type('Gucevogucevo1')
+  //   cy.get('[type=submit]').click()
+  //   cy.wait(1500)
+  //   cy.get('.nav-link').contains('Logout').should('be.visible')
+  //   cy.url('/').should('eq', url1)
+  // })
+})
