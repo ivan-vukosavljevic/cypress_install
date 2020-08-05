@@ -40,7 +40,7 @@ Cypress.Commands.add('loginBe', (mejl, pasvord) =>{
   }).
   then((resp)=>{
      expect(resp.body).to.have.property('access_token')
-     localStorage.setItem('token', resp.body.access_token)
+     localStorage.setItem('user_id', resp.body.access_token)
      cy.visit('/')
   }) 
 })
